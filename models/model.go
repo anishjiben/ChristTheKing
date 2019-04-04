@@ -1,5 +1,6 @@
 package models
 
 type BibleSentence struct {
-	TodaysQuote string
+	TodaysQuote string `json:"todays_quote"`
+	Date        string `json:"date"'`
 }

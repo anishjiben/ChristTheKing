@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ChristTheKing/handlers"
 	"ChristTheKing/routers"
 	"fmt"
 	"log"
@@ -8,7 +9,8 @@ import (
 )
 
 func main() {
-	fmt.Println("Christ the king...")
+	fmt.Println("Christ the king... service started")
 	router := routers.NewRouter()
+	router.NotFoundHandler = http.HandlerFunc(handlers.UrlMatchNotFoundHandler)
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
