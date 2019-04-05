@@ -1,6 +1,9 @@
 package models
 
+import "gopkg.in/mgo.v2/bson"
+
 type BibleSentence struct {
-	TodaysQuote string `json:"todays_quote"`
-	Date        string `json:"date"'`
+	ID             bson.ObjectId `bson:"_id" json:"id"`
+	TodaysSentence string        `bson:"todays_sentence" json:"todays_sentence"`
+	Date           string        `json:"date"`
 }

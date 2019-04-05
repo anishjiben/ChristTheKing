@@ -1,19 +1,23 @@
 package handlers
 
 import (
-	"ChristTheKing/models"
+	"ChristTheKing/repositories"
 	"encoding/json"
 	"net/http"
 )
 
 func DailyBibleSentence(w http.ResponseWriter, r *http.Request) {
-	bibleSentence := models.BibleSentence{
-		TodaysQuote: "This is daily bible sentence (Mathew 21 :2-1)",
-		Date:        "11/12/1234",
-	}
 
+	bibleSentence, err := repositories.GetTodaysQuote()
 	w.Header().Set("Content-Type", "applicatio/json:charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	data, _ := json.Marshal(bibleSentence)
-	w.Write(data)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		data, _ := json.Marshal(repositories.CONNECTION_ERROR)
+		w.Write(data)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		data, _ := json.Marshal(bibleSentence)
+		w.Write(data)
+	}
 }
