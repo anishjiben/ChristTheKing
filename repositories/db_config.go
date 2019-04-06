@@ -16,6 +16,3 @@ var MongoDBDialInfo = &mgo.DialInfo{
 
 // Name of the collections in collection "christ_the_king"
 const COL_BIBLE_SENTENCE = "bible_sentences"
-
-// Data base connection error keywords
-const CONNECTION_ERROR = "DataBase is not connected"
