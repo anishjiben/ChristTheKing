@@ -15,8 +15,12 @@ type Route struct {
 type Routes []Route
 
 var routes = Routes{
-	{"GetDailyBibleSentence",
+	Route{"GetDailyBibleSentence",
 		"GET",
-		"/get_bible_sentence",
-		handlers.DailyBibleSentence},
+		"/get_bible_quote",
+		handlers.GetDailyBibleQote},
+	Route{"PostDailyBibleSentence",
+		"POST",
+		"/post_bible_quote",
+		handlers.PostDailyBibleQuote},
 }

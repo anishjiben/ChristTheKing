@@ -1,7 +1,8 @@
-package errors
+package messages
 
-// Data base connection error keywords
+// Error keywords
 const CONNECTION_ERROR = "DataBase is not connected"
+const BAD_REQUEST = "Form data is invalid"
 
 type errorMessage struct {
 	Error string

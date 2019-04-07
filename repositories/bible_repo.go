@@ -2,16 +2,12 @@ package repositories
 
 import (
 	. "ChristTheKing/models"
-	"gopkg.in/mgo.v2"
 )
 
 func GetTodaysQuote() (bs BibleSentence, err error) {
 	bs = BibleSentence{}
-	session, err := mgo.DialWithInfo(MongoDBDialInfo)
-	if err != nil {
-		return bs, err
-	}
-	c := session.DB(CTK_DATABASE).C(COL_BIBLE_SENTENCE)
+	sessionCopy := DatabaseSession.Copy()
+	c := sessionCopy.DB(CTK_DATABASE).C(COL_BIBLE_SENTENCE)
 	// get the count of total documents in collection
 	totalRecords, err := c.Count()
 	// Fetch the latest inserted document
@@ -21,7 +17,20 @@ func GetTodaysQuote() (bs BibleSentence, err error) {
 		if r := recover(); r != nil {
 			err = r.(error)
 		}
-		session.Close()
+		sessionCopy.Close()
 	}()
 	return bs, err
+}
+
+func AddTodaysQuote(bs BibleSentence) (err error) {
+	sessionCopy := DatabaseSession.Copy()
+	c := sessionCopy.DB(CTK_DATABASE).C(COL_BIBLE_SENTENCE)
+	err = c.Insert(bs)
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+		}
+		sessionCopy.Close()
+	}()
+	return err
 }

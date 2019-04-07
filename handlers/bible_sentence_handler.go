@@ -1,28 +1,49 @@
 package handlers
 
 import (
-	. "ChristTheKing/errors"
+	. "ChristTheKing/messages"
+	. "ChristTheKing/models"
 	"ChristTheKing/repositories"
+	. "ChristTheKing/validators"
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
-// Handler to serve the daily bible quote
-func DailyBibleSentence(w http.ResponseWriter, r *http.Request) {
-
+// Handler to serve daily bible quote
+func GetDailyBibleQote(w http.ResponseWriter, r *http.Request) {
 	// Get daily quote from the bible_repo repository
 	bibleSentence, err := repositories.GetTodaysQuote()
 	w.Header().Set("Content-Type", "applicatio/json:charset=UTF-8")
-
 	if err != nil {
 		// Send the error as response, if data fetch from database fails
-		w.WriteHeader(http.StatusInternalServerError)
-		data, _ := json.Marshal(GetErrorMessage(CONNECTION_ERROR))
-		w.Write(data)
+		sendResponse(w, http.StatusInternalServerError, GetErrorMessage(CONNECTION_ERROR))
 	} else {
 		// Send the daily bible sentence as response, if data fetch from database is success
-		w.WriteHeader(http.StatusOK)
-		data, _ := json.Marshal(bibleSentence)
-		w.Write(data)
+		sendResponse(w, http.StatusOK, bibleSentence)
 	}
+}
+
+// Handler to post daily bible quote
+func PostDailyBibleQuote(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	bs := BibleSentence{"", r.FormValue("todays_sentence"), time.Now().UTC()}
+	// validate if the form data is valid
+	if err := Validate.Struct(bs); err != nil {
+		sendResponse(w, http.StatusBadRequest, GetErrorMessage(BAD_REQUEST))
+		return
+	}
+	if err := repositories.AddTodaysQuote(bs); err != nil {
+		// Send the error as response, if data inserts fails
+		sendResponse(w, http.StatusInternalServerError, GetErrorMessage(CONNECTION_ERROR))
+	} else {
+		// Send the succes message as response, if data has been isert succesfully
+		sendResponse(w, http.StatusCreated, GetSuccessMessage(INSERTED_SUCCESSFULLY))
+	}
+}
+
+func sendResponse(w http.ResponseWriter, statusCode int, responsBody interface{}) {
+	w.WriteHeader(statusCode)
+	data, _ := json.Marshal(responsBody)
+	w.Write(data)
 }
