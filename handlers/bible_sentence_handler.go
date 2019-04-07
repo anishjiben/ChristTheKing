@@ -14,7 +14,6 @@ import (
 func GetDailyBibleQote(w http.ResponseWriter, r *http.Request) {
 	// Get daily quote from the bible_repo repository
 	bibleSentence, err := repositories.GetTodaysQuote()
-	w.Header().Set("Content-Type", "applicatio/json:charset=UTF-8")
 	if err != nil {
 		// Send the error as response, if data fetch from database fails
 		sendResponse(w, http.StatusInternalServerError, GetErrorMessage(CONNECTION_ERROR))
@@ -42,7 +41,9 @@ func PostDailyBibleQuote(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Writes the response to the ResponseWriter
 func sendResponse(w http.ResponseWriter, statusCode int, responsBody interface{}) {
+	w.Header().Set("Content-Type", "applicatio/json:charset=UTF-8")
 	w.WriteHeader(statusCode)
 	data, _ := json.Marshal(responsBody)
 	w.Write(data)
