@@ -4,7 +4,9 @@ import (
 	. "ChristTheKing/models"
 )
 
-func GetTodaysQuote() (bs BibleSentence, err error) {
+type BibleRepository struct{}
+
+func (*BibleRepository) GetTodaysQuote() (bs BibleSentence, err error) {
 	bs = BibleSentence{}
 	sessionCopy := DatabaseSession.Copy()
 	c := sessionCopy.DB(CTK_DATABASE).C(COL_BIBLE_SENTENCE)
@@ -22,7 +24,7 @@ func GetTodaysQuote() (bs BibleSentence, err error) {
 	return bs, err
 }
 
-func AddTodaysQuote(bs BibleSentence) (err error) {
+func (*BibleRepository) AddTodaysQuote(bs BibleSentence) (err error) {
 	sessionCopy := DatabaseSession.Copy()
 	c := sessionCopy.DB(CTK_DATABASE).C(COL_BIBLE_SENTENCE)
 	err = c.Insert(bs)

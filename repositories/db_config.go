@@ -22,6 +22,7 @@ var DatabaseSession *mgo.Session
 
 // Name of the collections in collection "christ_the_king"
 const COL_BIBLE_SENTENCE = "bible_sentences"
+const COL_USERS = "users"
 
 func init() {
 	var err error

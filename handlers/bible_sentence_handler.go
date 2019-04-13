@@ -10,10 +10,16 @@ import (
 	"time"
 )
 
+var bibleRepo repositories.BibleRepository
+
+func init() {
+	bibleRepo = repositories.BibleRepository{}
+}
+
 // Handler to serve daily bible quote
 func GetDailyBibleQote(w http.ResponseWriter, r *http.Request) {
 	// Get daily quote from the bible_repo repository
-	bibleSentence, err := repositories.GetTodaysQuote()
+	bibleSentence, err := bibleRepo.GetTodaysQuote()
 	if err != nil {
 		// Send the error as response, if data fetch from database fails
 		sendResponse(w, http.StatusInternalServerError, GetErrorMessage(CONNECTION_ERROR))
@@ -32,7 +38,7 @@ func PostDailyBibleQuote(w http.ResponseWriter, r *http.Request) {
 		sendResponse(w, http.StatusBadRequest, GetErrorMessage(BAD_REQUEST))
 		return
 	}
-	if err := repositories.AddTodaysQuote(bs); err != nil {
+	if err := bibleRepo.AddTodaysQuote(bs); err != nil {
 		// Send the error as response, if data inserts fails
 		sendResponse(w, http.StatusInternalServerError, GetErrorMessage(CONNECTION_ERROR))
 	} else {

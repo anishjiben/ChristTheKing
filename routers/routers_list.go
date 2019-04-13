@@ -23,4 +23,8 @@ var routes = Routes{
 		"POST",
 		"/post_bible_quote",
 		handlers.PostDailyBibleQuote},
+	Route{"AddUser",
+		"POST",
+		"/sign_up",
+		handlers.SignUpUser},
 }
