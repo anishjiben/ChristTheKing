@@ -27,4 +27,8 @@ var routes = Routes{
 		"POST",
 		"/sign_up",
 		handlers.SignUpUser},
+	Route{"Login",
+		"POST",
+		"/login",
+		handlers.UserLoginIn},
 }

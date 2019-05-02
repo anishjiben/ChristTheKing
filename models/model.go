@@ -19,3 +19,8 @@ type CtkUser struct {
 	AccountCreatedBy string        `bson:"account_created_by", json:"account_created_by" validate:"required,empty"`
 	SignUpDate       time.Time     `bson:"sign_up_date" json:"sign_up_date" validate:"required,empty"`
 }
+
+type UserCredential struct {
+	UserName string `bson:"user_name" json:"user_name" validate:"required,empty"`
+	Password string `bson:"password" json:"password" validate:"required,empty"`
+}

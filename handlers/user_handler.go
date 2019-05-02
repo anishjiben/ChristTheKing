@@ -47,3 +47,21 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 }
+
+func UserLoginIn(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	userCredential := UserCredential{r.FormValue("user_name"), r.FormValue("password")}
+	// Validate if the form data is valid
+	if err := Validate.Struct(userCredential); err != nil {
+		sendResponse(w, http.StatusBadRequest, GetErrorMessage(BAD_REQUEST))
+		return
+	}
+	// Check for authorization
+	if authorizedUser, _ := userRepository.IsAuthorizedUser(userCredential); !authorizedUser {
+		// Un Authorized
+		sendResponse(w, http.StatusUnauthorized, UN_AUTHORIZED_USER)
+		return
+	}
+	// Authorized user, hence logged-in succesfully
+	sendResponse(w, http.StatusOK, LOGGEDIN_SUCCESFULLY)
+}
