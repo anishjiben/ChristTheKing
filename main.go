@@ -8,6 +8,9 @@ import (
 	"net/http"
 )
 
+func init() {
+	handlers.InitializeJWTAuthentication()
+}
 func main() {
 	fmt.Println("Christ the king... service started")
 	router := routers.NewRouter()

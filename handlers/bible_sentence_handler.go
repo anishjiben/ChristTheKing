@@ -6,7 +6,9 @@ import (
 	"ChristTheKing/repositories"
 	. "ChristTheKing/validators"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -36,6 +38,15 @@ func PostDailyBibleQuote(w http.ResponseWriter, r *http.Request) {
 	// validate if the form data is valid
 	if err := Validate.Struct(bs); err != nil {
 		sendResponse(w, http.StatusBadRequest, GetErrorMessage(BAD_REQUEST))
+		return
+	}
+	// Token Validation
+	jwtToken := r.Header.Get("Authorization")
+	splitToken := strings.Split(jwtToken, "Bearer ")
+	knownUser, err := jwtAuthInstance.VerifyToken(splitToken[1])
+	fmt.Println(knownUser, err)
+	if !knownUser || err != nil {
+		sendResponse(w, http.StatusUnauthorized, GetErrorMessage(LOGIN_REQUIRED))
 		return
 	}
 	if err := bibleRepo.AddTodaysQuote(bs); err != nil {

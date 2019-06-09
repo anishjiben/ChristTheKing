@@ -62,6 +62,12 @@ func UserLoginIn(w http.ResponseWriter, r *http.Request) {
 		sendResponse(w, http.StatusUnauthorized, UN_AUTHORIZED_USER)
 		return
 	}
+	token, err := jwtAuthInstance.GenerateToken(userCredential.UserName)
+	if err != nil {
+		sendResponse(w, http.StatusInternalServerError, TOKEN_CREATION_FAILED)
+	}
+	// Adding the jwt-token to the response header
+	w.Header().Add("Authorization", "Bearer "+token)
 	// Authorized user, hence logged-in succesfully
 	sendResponse(w, http.StatusOK, LOGGEDIN_SUCCESFULLY)
 }
