@@ -1,6 +1,8 @@
 package handlers
 
-import "time"
+import (
+	"time"
+)
 import "github.com/dgrijalva/jwt-go"
 
 type CtkClaims struct {
@@ -44,5 +46,10 @@ func (jwtInstance *JWTAuthentication) VerifyToken(jwtToken string) (valid bool, 
 	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (i interface{}, e error) {
 		return jwtAuthInstance.signatureKey, nil
 	})
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+		}
+	}()
 	return token.Valid, err
 }

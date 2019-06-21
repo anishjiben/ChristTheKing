@@ -6,7 +6,6 @@ import (
 	"ChristTheKing/repositories"
 	. "ChristTheKing/validators"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -44,7 +43,6 @@ func PostDailyBibleQuote(w http.ResponseWriter, r *http.Request) {
 	jwtToken := r.Header.Get("Authorization")
 	splitToken := strings.Split(jwtToken, "Bearer ")
 	knownUser, err := jwtAuthInstance.VerifyToken(splitToken[1])
-	fmt.Println(knownUser, err)
 	if !knownUser || err != nil {
 		sendResponse(w, http.StatusUnauthorized, GetErrorMessage(LOGIN_REQUIRED))
 		return
@@ -56,6 +54,12 @@ func PostDailyBibleQuote(w http.ResponseWriter, r *http.Request) {
 		// Send the succes message as response, if data has been isert succesfully
 		sendResponse(w, http.StatusCreated, GetSuccessMessage(INSERTED_SUCCESSFULLY))
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+			sendResponse(w, http.StatusInternalServerError, err)
+		}
+	}()
 }
 
 // Writes the response to the ResponseWriter
