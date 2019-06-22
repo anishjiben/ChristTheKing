@@ -31,4 +31,8 @@ var routes = Routes{
 		"POST",
 		"/login",
 		handlers.UserLoginIn},
+	Route{"Refresh",
+		"GET",
+		"/refresh_token",
+		handlers.RefreshUserToken},
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"time"
 )
 import "github.com/dgrijalva/jwt-go"
@@ -10,22 +11,23 @@ type CtkClaims struct {
 	standardClaims jwt.StandardClaims
 }
 type JWTAuthentication struct {
-	signatureKey []byte
+	signatureKey    []byte
+	tokenExpireTime time.Duration //In minutes
 }
 
 var jwtAuthInstance *JWTAuthentication
 
 func InitializeJWTAuthentication() *JWTAuthentication {
 	if jwtAuthInstance == nil {
-		// TODO: Get the secret_key from the environment variable, dont encode it here
-		jwtAuthInstance = &JWTAuthentication{[]byte("secret_key")}
+		// TODO: Get the secret_key from the environment variable, dont hardcode it here
+		jwtAuthInstance = &JWTAuthentication{[]byte("secret_key"), 2}
 	}
 	return jwtAuthInstance
 }
 
 func (jwtInstance *JWTAuthentication) GenerateToken(userName string) (token string, err error) {
 	// Expiration time of token, 5 minutes
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(jwtInstance.tokenExpireTime * time.Minute)
 	// Claims to be used while creating token
 	ctkClaims := jwt.MapClaims{
 		"userName": userName,
@@ -52,4 +54,29 @@ func (jwtInstance *JWTAuthentication) VerifyToken(jwtToken string) (valid bool, 
 		}
 	}()
 	return token.Valid, err
+}
+
+func (jwtInstance *JWTAuthentication) RefreshToken(jwtToken string) (renewdToken string, err error) {
+	ctkClaims := jwt.MapClaims{}
+	_, err = jwt.ParseWithClaims(jwtToken, ctkClaims, func(token *jwt.Token) (interface{}, error) {
+		return jwtInstance.signatureKey, nil
+	})
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+		}
+	}()
+
+	/* Check if the current time is about to(should not be 30sec befor expire time)
+	expired or not, panic if the token is not expired*/
+	expiredTime := int64(ctkClaims["exp"].(float64))
+	if time.Unix(expiredTime, 0).Sub(time.Now()) > 30*time.Second {
+		panic(errors.New("Time not expired"))
+	}
+	// Extend the time of token to 5 more minutes
+	ctkClaims["exp"] = time.Now().Add(jwtInstance.tokenExpireTime * time.Minute).Unix()
+	// Generating the token with secret key
+	unsignedToken := jwt.NewWithClaims(jwt.SigningMethodHS512, ctkClaims)
+	renewdToken, err = unsignedToken.SignedString(jwtInstance.signatureKey)
+	return renewdToken, err
 }
