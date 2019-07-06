@@ -20,9 +20,10 @@ var MongoDBDialInfo = &mgo.DialInfo{
 // Data base session
 var DatabaseSession *mgo.Session
 
-// Name of the collections in collection "christ_the_king"
+// Name of the collections in database "christ_the_king"
 const COL_BIBLE_SENTENCE = "bible_sentences"
 const COL_USERS = "users"
+const COL_TOKEN = "blacklisted_tokens"
 
 func init() {
 	var err error

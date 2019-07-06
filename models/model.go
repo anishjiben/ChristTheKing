@@ -24,3 +24,7 @@ type UserCredential struct {
 	UserName string `bson:"user_name" json:"user_name" validate:"required,empty"`
 	Password string `bson:"password" json:"password" validate:"required,empty"`
 }
+
+type Token struct {
+	JwtToken string `bson:"token" json:"token"`
+}

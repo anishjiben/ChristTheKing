@@ -48,10 +48,10 @@ func PostDailyBibleQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := bibleRepo.AddTodaysQuote(bs); err != nil {
-		// Send the error as response, if data inserts fails
+		// Send the error as response, if data insertion fails
 		sendResponse(w, http.StatusInternalServerError, GetErrorMessage(CONNECTION_ERROR))
 	} else {
-		// Send the succes message as response, if data has been isert succesfully
+		// Send the success message as response, if data has been inserted succesfully
 		sendResponse(w, http.StatusCreated, GetSuccessMessage(INSERTED_SUCCESSFULLY))
 	}
 	defer func() {

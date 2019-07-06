@@ -35,4 +35,8 @@ var routes = Routes{
 		"GET",
 		"/refresh_token",
 		handlers.RefreshUserToken},
+	Route{"Logout",
+		"GET",
+		"/logout",
+		handlers.UserLogout},
 }

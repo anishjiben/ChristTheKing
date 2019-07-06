@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"ChristTheKing/repositories"
 	"errors"
 	"time"
 )
@@ -16,11 +17,13 @@ type JWTAuthentication struct {
 }
 
 var jwtAuthInstance *JWTAuthentication
+var tokenRepo repositories.TokenRepository
 
 func InitializeJWTAuthentication() *JWTAuthentication {
 	if jwtAuthInstance == nil {
 		// TODO: Get the secret_key from the environment variable, dont hardcode it here
 		jwtAuthInstance = &JWTAuthentication{[]byte("secret_key"), 2}
+		tokenRepo = repositories.TokenRepository{}
 	}
 	return jwtAuthInstance
 }
@@ -45,15 +48,18 @@ func (jwtInstance *JWTAuthentication) GenerateToken(userName string) (token stri
 }
 
 func (jwtInstance *JWTAuthentication) VerifyToken(jwtToken string) (valid bool, err error) {
+	// Check if token is valid
 	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (i interface{}, e error) {
 		return jwtAuthInstance.signatureKey, nil
 	})
+	// Check if token is blacklisted
+	blackListed := jwtInstance.IsTokenBlackListed(jwtToken)
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)
 		}
 	}()
-	return token.Valid, err
+	return token.Valid && !blackListed, err
 }
 
 func (jwtInstance *JWTAuthentication) RefreshToken(jwtToken string) (renewdToken string, err error) {
@@ -68,15 +74,34 @@ func (jwtInstance *JWTAuthentication) RefreshToken(jwtToken string) (renewdToken
 	}()
 
 	/* Check if the current time is about to(should not be 30sec befor expire time)
-	expired or not, panic if the token is not expired*/
+	expire or not, panic if the token is not expired*/
 	expiredTime := int64(ctkClaims["exp"].(float64))
 	if time.Unix(expiredTime, 0).Sub(time.Now()) > 30*time.Second {
 		panic(errors.New("Time not expired"))
 	}
+
+	if blackListed := jwtInstance.BlackListToken(jwtToken); !blackListed {
+		err = errors.New("black listing token unsuccesfull")
+	}
+
 	// Extend the time of token to 5 more minutes
 	ctkClaims["exp"] = time.Now().Add(jwtInstance.tokenExpireTime * time.Minute).Unix()
 	// Generating the token with secret key
 	unsignedToken := jwt.NewWithClaims(jwt.SigningMethodHS512, ctkClaims)
 	renewdToken, err = unsignedToken.SignedString(jwtInstance.signatureKey)
 	return renewdToken, err
+}
+
+func (jwtInstance *JWTAuthentication) BlackListToken(jwtToken string) bool {
+	if err := tokenRepo.SaveToken(jwtToken); err != nil {
+		return false
+	}
+	return true
+}
+
+func (jwtInstance *JWTAuthentication) IsTokenBlackListed(jwtToken string) bool {
+	if token, _ := tokenRepo.IsTokenExist(jwtToken); token.JwtToken == jwtToken {
+		return true
+	}
+	return false
 }
