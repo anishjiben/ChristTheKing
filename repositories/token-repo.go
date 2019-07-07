@@ -29,3 +29,11 @@ func (*TokenRepository) IsTokenExist(jwtToken string) (token Token, err error) {
 	err = c.Find(bson.M{"token": jwtToken}).One(&token)
 	return token, err
 }
+
+func (*TokenRepository) DeleteBlacklistedTokens() error {
+	sessionCopy := DatabaseSession.Copy()
+	defer sessionCopy.Close()
+	c := sessionCopy.DB(CTK_DATABASE).C(COL_TOKEN)
+	_, err := c.RemoveAll(nil)
+	return err
+}

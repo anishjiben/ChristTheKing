@@ -3,6 +3,8 @@ package handlers
 import (
 	"ChristTheKing/repositories"
 	"errors"
+	"fmt"
+	"github.com/robfig/cron"
 	"time"
 )
 import "github.com/dgrijalva/jwt-go"
@@ -18,6 +20,7 @@ type JWTAuthentication struct {
 
 var jwtAuthInstance *JWTAuthentication
 var tokenRepo repositories.TokenRepository
+var cronShedule *cron.Cron
 
 func InitializeJWTAuthentication() *JWTAuthentication {
 	if jwtAuthInstance == nil {
@@ -26,6 +29,22 @@ func InitializeJWTAuthentication() *JWTAuthentication {
 		tokenRepo = repositories.TokenRepository{}
 	}
 	return jwtAuthInstance
+}
+
+// Sheduler to clean the blacklisted tokens from the mongodb
+func SheduleBlacklistTokensCleanJob() *cron.Cron {
+	if cronShedule == nil {
+		cronShedule = cron.New()
+		cronShedule.AddFunc("@monthly", jwtAuthInstance.emptyBlackListedTokens)
+		cronShedule.Start()
+	}
+	return cronShedule
+}
+
+func StopSheduledTokenCleanUpJob() {
+	if cronShedule != nil {
+		cronShedule.Stop()
+	}
 }
 
 func (jwtInstance *JWTAuthentication) GenerateToken(userName string) (token string, err error) {
@@ -104,4 +123,11 @@ func (jwtInstance *JWTAuthentication) IsTokenBlackListed(jwtToken string) bool {
 		return true
 	}
 	return false
+}
+
+func (jwtInstance *JWTAuthentication) emptyBlackListedTokens() {
+	if err := tokenRepo.DeleteBlacklistedTokens(); err != nil {
+		//TODO: Use logger here instead of println
+		fmt.Println("Cleaning unsessfull : ", err)
+	}
 }
