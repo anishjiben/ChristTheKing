@@ -25,7 +25,7 @@ var cronShedule *cron.Cron
 func InitializeJWTAuthentication() *JWTAuthentication {
 	if jwtAuthInstance == nil {
 		// TODO: Get the secret_key from the environment variable, dont hardcode it here
-		jwtAuthInstance = &JWTAuthentication{[]byte("secret_key"), 2}
+		jwtAuthInstance = &JWTAuthentication{[]byte("secret_key"), 30}
 		tokenRepo = repositories.TokenRepository{}
 	}
 	return jwtAuthInstance
