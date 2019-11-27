@@ -28,3 +28,11 @@ type UserCredential struct {
 type Token struct {
 	JwtToken string `bson:"token" json:"token"`
 }
+
+type UpcomingEvent struct {
+	ID          bson.ObjectId `bson:"_id,omitempty" json:"id"`
+	Title       string        `bson:"title" json:"title" validate:"required,empty"`
+	Description string        `bson:"description" json:"description" validate:"required,empty"`
+	Time        string        `bson:"time" json:"time" validate:"required,empty"`
+	ImageUrl    string        `bson:"image_url" json:"image_url" validate:"required,empty"`
+}

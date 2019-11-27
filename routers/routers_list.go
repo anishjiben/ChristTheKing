@@ -43,4 +43,12 @@ var routes = Routes{
 		"GET",
 		"/logout",
 		handlers.UserLogout},
+	Route{"UpcomingEvents",
+		"POST",
+		"/post_upcoming_event",
+		handlers.PostUpcomingEvents},
+	Route{"GetUpcomingEvents",
+		"GET",
+		"/get_upcoming_events",
+		handlers.GetUpcomingEvents},
 }

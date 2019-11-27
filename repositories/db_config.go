@@ -24,6 +24,7 @@ var DatabaseSession *mgo.Session
 const COL_BIBLE_SENTENCE = "bible_sentences"
 const COL_USERS = "users"
 const COL_TOKEN = "blacklisted_tokens"
+const COL_UPCOMING_EVENTS = "upcoming_events"
 
 func init() {
 	var err error
