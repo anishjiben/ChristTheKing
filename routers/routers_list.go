@@ -51,4 +51,12 @@ var routes = Routes{
 		"GET",
 		"/get_upcoming_events",
 		handlers.GetUpcomingEvents},
+	Route{"UpdateUpcomingEvent",
+		"PUT",
+		"/update_upcoming_event",
+		handlers.ModifyUpcomingEvent},
+	Route{"DeleteUpcomingEvent",
+		"DELETE",
+		"/delete_upcoming_event",
+		handlers.DeleteUpcomingEvent},
 }

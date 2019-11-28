@@ -2,6 +2,7 @@ package repositories
 
 import (
 	. "ChristTheKing/models"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 )
 
@@ -43,4 +44,31 @@ func (*UpcomingEventRepo) FetchUpcomingEvents() (ue []UpcomingEvent, err error) 
 		sessionCopy.Close()
 	}()
 	return ue, err
+}
+
+func (*UpcomingEventRepo) UpdateUpcomingEvent(ue UpcomingEvent) (err error) {
+	sessionCopy := DatabaseSession.Copy()
+	c := sessionCopy.DB(CTK_DATABASE).C(COL_UPCOMING_EVENTS)
+	err = c.UpdateId(ue.ID, bson.M{"$set": bson.M{"title": ue.Title,
+		"description": ue.Description, "time": ue.Time, "image_url": ue.ImageUrl}})
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+		}
+		sessionCopy.Close()
+	}()
+	return err
+}
+
+func (*UpcomingEventRepo) RemoveUpcomingEvent(id string) (err error) {
+	sessionCopy := DatabaseSession.Copy()
+	c := sessionCopy.DB(CTK_DATABASE).C(COL_UPCOMING_EVENTS)
+	err = c.RemoveId(bson.ObjectIdHex(id))
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+		}
+		sessionCopy.Close()
+	}()
+	return err
 }
