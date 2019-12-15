@@ -124,7 +124,6 @@ func DeleteUpcomingEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := upcomingEventRepo.RemoveUpcomingEvent(id[0]); err != nil {
-		fmt.Print(err)
 		// Send the error as response, if data insertion fails
 		sendResponse(w, http.StatusInternalServerError, GetErrorMessage(CONNECTION_ERROR))
 	} else {

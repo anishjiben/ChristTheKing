@@ -63,12 +63,14 @@ func (*UpcomingEventRepo) UpdateUpcomingEvent(ue UpcomingEvent) (err error) {
 func (*UpcomingEventRepo) RemoveUpcomingEvent(id string) (err error) {
 	sessionCopy := DatabaseSession.Copy()
 	c := sessionCopy.DB(CTK_DATABASE).C(COL_UPCOMING_EVENTS)
-	err = c.RemoveId(bson.ObjectIdHex(id))
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)
+			log.Println("panic occurred:", err)
 		}
 		sessionCopy.Close()
 	}()
+	err = c.RemoveId(bson.ObjectIdHex(id))
+
 	return err
 }
